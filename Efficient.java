@@ -19,6 +19,7 @@ public class Efficient {
    private static final int delta = 30;
 
    /**
+    * Compute the mismatch penalty of aligning two characters.
     * PRE: c1 and c2 are both in the set {'A', 'C', 'G', 'T'}
     * @param c1 first character to be matched
     * @param c2 second character to be matched
