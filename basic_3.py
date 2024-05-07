@@ -3,14 +3,14 @@ import time
 
 def generate_string(base, indices):
     s = base
-    print(f"Initial string: {s}")  # Debug output to show the string before manipulation starts
+    # print(f"Initial string: {s}")  # Debug output to show the string before manipulation starts
     for idx in indices:
-        print(f"Current index: {idx}, Current length: {len(s)}")  # Debug each step
+        # print(f"Current index: {idx}, Current length: {len(s)}")  # Debug each step
         if idx > len(s):  # If index is greater than current string length
-            print(f"Index {idx} out of bounds. Adjusting to {len(s)}")
+            # print(f"Index {idx} out of bounds. Adjusting to {len(s)}")
             idx = len(s)  # Adjust index to the maximum valid value (end of string)
-        s = s[:idx + 1] + s + s[idx + 1:]  # Insert the whole string s at position idx + 1
-        print(f"String after index {idx} insertion: {s}")  # Show string after each insertion
+        s = s[:idx + 1] + s + s[idx+1:]  # Insert the whole string s at position idx + 1
+        # print(f"String after index {idx} insertion: {s}")  # Show string after each insertion
     return s  # Return the modified string
 
 def validate_base_sequence(base, valid_chars={'A', 'C', 'G', 'T'}):
@@ -18,28 +18,26 @@ def validate_base_sequence(base, valid_chars={'A', 'C', 'G', 'T'}):
         raise ValueError(f"Base sequence contains invalid characters: {base}")  # Validate characters in the DNA sequence
 
 def read_input(file_path):
+    generatedStrings = []
+    indices = []
+    base = ''
+    lines = []
     with open(file_path, 'r') as file:  # Open file for reading
-        lines = file.read().splitlines()  # Read all lines and split into a list
-    
-    print("Lines from the input file:")
-    for index, line in enumerate(lines):  # Debug: print each line from the file
-        print(f"Line {index}: {line}")
+        lines = file.readlines()
+    i = 0
+    for j in range(2):
+        base = lines[i].strip()
+        while ((i+1) < len(lines)) and (lines[i+1].strip().isdigit()):
+            i = i+1
+            indices.append(int(lines[i]))
+        generatedStrings.append(generate_string(base, indices))
+        indices.clear()
+        i = i+1
 
-    s0 = lines[0].strip()  # Strip spaces and take the first line as s0
-    validate_base_sequence(s0)  # Validate the DNA sequence
-    j = int(lines[1].strip())  # Read the number of indices from the second line
-    indices_x = [int(lines[i + 2]) for i in range(j)]  # Read the indices for s0
+    x = (generatedStrings.__getitem__(0))
+    y = (generatedStrings.__getitem__(1))
 
-    offset = 2 + j  # Calculate the line number offset for the second DNA sequence
-    t0 = lines[offset].strip()  # Read the second DNA sequence
-    validate_base_sequence(t0)  # Validate the second DNA sequence
-    k = int(lines[offset + 1].strip())  # Read the number of indices for the second sequence
-    indices_y = [int(lines[offset + 2 + i]) for i in range(k)]  # Read the indices for t0
-
-    x = generate_string(s0, indices_x)  # Generate the modified string x
-    y = generate_string(t0, indices_y)  # Generate the modified string y
-
-    return x, y  # Return the modified strings x and y
+    return x,y
 
 def sequence_alignment(x, y, gap_penalty, mismatch_cost):
     m, n = len(x), len(y)  # Get lengths of both sequences
@@ -54,7 +52,7 @@ def sequence_alignment(x, y, gap_penalty, mismatch_cost):
             cost = mismatch_cost[x[i-1]][y[j-1]]  # Compute mismatch cost
             dp[i][j] = min(dp[i-1][j-1] + cost, dp[i][j-1] + gap_penalty, dp[i-1][j] + gap_penalty)  # Fill DP table
 
-    print_dp_matrix(dp)  # Debug: print DP matrix
+    # print_dp_matrix(dp)  # Debug: print DP matrix
 
     alignX, alignY = '', ''
     while m > 0 and n > 0:  # Trace back from bottom-right to top-left
@@ -83,15 +81,15 @@ def sequence_alignment(x, y, gap_penalty, mismatch_cost):
     
     return dp[len(x)][len(y)], alignX, alignY  # Return final alignment and score
 
-def print_dp_matrix(dp):
-    for row in dp:
-        print(' '.join(f"{val:3}" for val in row))  # Print each row of DP matrix formatted to align columns
+# def print_dp_matrix(dp):
+#     for row in dp:
+#         print(' '.join(f"{val:3}" for val in row))  # Print each row of DP matrix formatted to align columns
 
 def main(input_file, output_file):
     try:
         x, y = read_input(input_file)  # Read input and generate strings
-        print("Generated X:", x)
-        print("Generated Y:", y)
+        # print("Generated X:", x)
+        # print("Generated Y:", y)
         gap_penalty = 30  # Set gap penalty
         mismatch_cost = {  # Define mismatch cost dictionary
             'A': {'A': 0, 'C': 110, 'G': 48, 'T': 94},
