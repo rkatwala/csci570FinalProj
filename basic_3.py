@@ -1,5 +1,7 @@
 import sys
 import time
+import psutil
+
 
 def generate_string(base, indices):
     s = base
@@ -85,6 +87,11 @@ def sequence_alignment(x, y, gap_penalty, mismatch_cost):
 #     for row in dp:
 #         print(' '.join(f"{val:3}" for val in row))  # Print each row of DP matrix formatted to align columns
 
+def process_memory():
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    memory_consumed = int(memory_info.rss/1024)
+    return memory_consumed
 def main(input_file, output_file):
     try:
         x, y = read_input(input_file)  # Read input and generate strings
@@ -98,14 +105,16 @@ def main(input_file, output_file):
             'T': {'A': 94, 'C': 48, 'G': 110, 'T': 0}
         }
 
+        beforeUsedMem = process_memory()
         start_time = time.time()  # Start timing
         cost, alignX, alignY = sequence_alignment(x, y, gap_penalty, mismatch_cost)  # Perform sequence alignment
+        afterUsedMem = process_memory()
         end_time = time.time()  # End timing
 
+        totalUsage = afterUsedMem - beforeUsedMem
         elapsed_time = (end_time - start_time) * 1000  # Calculate elapsed time in milliseconds
         with open(output_file, 'w') as file:  # Open output file for writing
-            file.write(f"{cost}\n{alignX}\n{alignY}\n{elapsed_time:.3f}\n")  # Write results to output file
-
+            file.write(f"{cost}\n{alignX}\n{alignY}\n{elapsed_time:.3f}\n{totalUsage:.3f}")  # Write results to output file
     except ValueError as e:
         print(f"Error: {e}")  # Handle errors, e.g., invalid characters in DNA sequences
 
